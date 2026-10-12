@@ -14,6 +14,8 @@ public class ScoreManager : MonoBehaviour
     // Anyone can read the score, only ScoreManager can change it
     public int Score { get; private set; }
 
+    public static int FinalScore { get; private set; }
+
 
     // Awake runs before any Start(), so Instance is ready before coins need it
     private void Awake()
@@ -31,6 +33,8 @@ public class ScoreManager : MonoBehaviour
         Instance = this;
     }
 
+    
+
 
     // Called by coins when they're collected
     public void AddScore(int amount)
@@ -40,5 +44,10 @@ public class ScoreManager : MonoBehaviour
 
         // Print the new total to the Console window
         Debug.Log("Score: " + Score);
+    }
+
+    public void SaveFinalScore()
+    {
+        FinalScore = Score;
     }
 }

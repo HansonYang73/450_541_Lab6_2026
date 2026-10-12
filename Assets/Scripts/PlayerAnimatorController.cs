@@ -27,13 +27,26 @@ public class PlayerAnimatorController : MonoBehaviour
 
 
         // Tell the Animator if we're on the ground (controls Falling)
-        animator.SetBool("IsGrounded", movement.IsGrounded);
+        bool grounded = movement.IsGrounded;
+        animator.SetBool("IsGrounded", grounded);
 
 
         // When Fire1 (left mouse button / left Ctrl) is released, roll
         if (Input.GetButtonUp("Fire1"))
         {
             animator.SetTrigger("doRoll");
+        }
+
+        if (grounded)
+        {
+            animator.ResetTrigger("doDoubleJump");
+        }
+        else
+        {
+            if (Input.GetButtonDown("Jump") && movement.TryDoubleJump())
+            {
+                animator.SetTrigger("doDoubleJump");
+            }
         }
     }
 }

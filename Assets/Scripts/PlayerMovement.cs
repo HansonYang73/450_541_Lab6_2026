@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float moveSpeed = 7f;      // units per second
     [SerializeField] private float turnSpeed = 150f;    // degrees per second
     [SerializeField] private float jumpForce = 5f;      // strength of the jump
+    [SerializeField] private float doubleJumpForce = 4f;
 
     [Header("Ground Check Settings")]
     [SerializeField] private float groundDistance = 0.5f; // ray length
@@ -19,6 +20,9 @@ public class PlayerMovement : MonoBehaviour
     private float turnInput;            // horizontal input for rotation
     private bool isGrounded;            // true when standing on the ground
     private bool jumpRequested = false; // set in Update(), used later
+    private bool doubleJumpRequested = false; // set in Update(), used later
+    private bool hasDoubleJumped = false; // set in Update(), used later
+    
 
     public bool IsGrounded => isGrounded;
 
@@ -32,6 +36,11 @@ public class PlayerMovement : MonoBehaviour
     {
         // 1. Ground Check
         isGrounded = Physics.Raycast(transform.position + transform.up*groundDistance/2, -transform.up, groundDistance, groundMask);
+
+        if (isGrounded)
+        {
+            hasDoubleJumped = false;
+        }
 
         // 2. Read Inputs
         turnInput = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right turn input
@@ -56,8 +65,14 @@ public class PlayerMovement : MonoBehaviour
 
         if (jumpRequested)
         {
-            Jump();
+            Jump(jumpForce);
             jumpRequested = false;
+        }
+
+        if (doubleJumpRequested)
+        {
+            Jump(doubleJumpForce);
+            doubleJumpRequested = false;
         }
     }
 
@@ -70,9 +85,18 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);
     }
 
-    private void Jump()
+    private void Jump(float force)
     {
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        rb.AddForce(Vector3.up * force, ForceMode.VelocityChange);
+    }
+
+    public bool TryDoubleJump()
+    {
+        if (isGrounded || hasDoubleJumped) return false;
+
+        doubleJumpRequested = true;
+        hasDoubleJumped = true;
+        return true;
     }
 }
